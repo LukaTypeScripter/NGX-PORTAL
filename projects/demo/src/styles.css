@@ -1,0 +1,10 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Import modal animations */
+@import '../../ngx-portal/src/lib/modal/modal.css';
+
+/* Modal backdrop styles */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
