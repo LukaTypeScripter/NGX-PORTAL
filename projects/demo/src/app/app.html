@@ -243,22 +243,57 @@
       </svg>
       <h1>Hello, {{ title() }}</h1>
       <p>Congratulations! Your app is running. 🎉</p>
-      <button
-        (click)="openModal()"
-        style="
-          margin-top: 1rem;
-          padding: 0.75rem 1.5rem;
-          background: var(--electric-violet);
-          color: white;
-          border: none;
-          border-radius: 0.5rem;
-          cursor: pointer;
-          font-size: 1rem;
-          font-weight: 500;
-        "
-      >
-        Open Test Modal
-      </button>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; max-width: 250px;">
+        <button
+          (click)="openModal()"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--electric-violet);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          Open Single Modal
+        </button>
+        <button
+          (click)="openMultipleModals()"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--bright-blue);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          Open 3 Stacked Modals
+        </button>
+        <button
+          (click)="closeAllModals()"
+          [disabled]="modal.openModalsCount() === 0"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--hot-red);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            opacity: 0.9;
+          "
+          [style.opacity]="modal.openModalsCount() === 0 ? '0.4' : '0.9'"
+          [style.cursor]="modal.openModalsCount() === 0 ? 'not-allowed' : 'pointer'"
+        >
+          Close All ({{ modal.openModalsCount() }})
+        </button>
+      </div>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">

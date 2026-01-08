@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { JsonPipe } from '@angular/common';
-import { ModalRef, MODAL_DATA } from '../../../ngx-portal/src/public-api';
+import { ModalRef, MODAL_DATA, Modal } from '../../../ngx-portal/src/public-api';
 
 @Component({
   selector: 'app-test-modal',
@@ -12,6 +12,7 @@ import { ModalRef, MODAL_DATA } from '../../../ngx-portal/src/public-api';
 
       @if (data) {
         <p>Data received: {{ data | json }}</p>
+        <p style="font-size: 0.875rem; color: #666;">Modal ID: {{ modalRef.id }} | Level: {{ modalRef.level }}</p>
       }
 
       <div class="form-group">
@@ -34,6 +35,7 @@ import { ModalRef, MODAL_DATA } from '../../../ngx-portal/src/public-api';
       </div>
 
       <div class="modal-actions">
+        <button (click)="openNestedModal()" style="background: #28a745;">Open Nested Modal</button>
         <button (click)="close()">Close</button>
         <button (click)="closeWithResult()">Submit & Close</button>
       </div>
@@ -130,8 +132,9 @@ import { ModalRef, MODAL_DATA } from '../../../ngx-portal/src/public-api';
   imports: [JsonPipe],
 })
 export class TestModalComponent {
-  private readonly modalRef = inject(ModalRef<TestModalComponent, { message: string; timestamp: Date }>);
+  protected readonly modalRef = inject(ModalRef<TestModalComponent, { message: string; timestamp: Date }>);
   protected readonly data = inject(MODAL_DATA, { optional: true });
+  private readonly modalService = inject(Modal);
 
   close(): void {
     this.modalRef.close();
@@ -139,6 +142,17 @@ export class TestModalComponent {
 
   closeWithResult(): void {
     this.modalRef.close({ message: 'Modal closed with result!', timestamp: new Date() });
+  }
+
+  openNestedModal(): void {
+    this.modalService.open(TestModalComponent, {
+      width: '450px',
+      data: {
+        message: `Nested modal opened from ${this.modalRef.id}`,
+        timestamp: new Date()
+      },
+      animationDuration: 300,
+    });
   }
 }
 

@@ -1,22 +1,109 @@
 import { OverlayRef } from '@angular/cdk/overlay';
-import { ComponentRef, inject } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { CloseReason, CloseResult } from './modal-config';
+import { from, isObservable, Observable, of, Subject } from 'rxjs';
+import { BeforeCloseGuard, CloseReason, CloseResult } from './modal-config';
+import { ModalAnimationService } from './services/modal-animation.service';
+import { catchError, map } from 'rxjs/operators';
 
 export class ModalRef<T = unknown, R = unknown> {
     componentInstance?: T;
     animationEnabled = true;
     animationDuration = 300;
-    openingTimeoutId?: number;
-
-  constructor(
-    private readonly _overlayRef: OverlayRef,
-  ) {}
+    openingTimeoutId?: ReturnType<typeof setTimeout>;
+    readonly id: string;
+    level: number = 0;
 
   private _afterClosed = new Subject<CloseResult<R>>();
   private _isClosing = false;
+  private _beforeCloseGuard?: BeforeCloseGuard;
 
+  constructor(
+    private readonly _overlayRef: OverlayRef,
+    id: string,
+    private readonly _animationService: ModalAnimationService,
+  ) {
+    this.id = id;
+  }
+
+  /**
+   * Sets a guard function that will be called before closing
+   */
+  setBeforeCloseGuard(guard?: BeforeCloseGuard): void {
+    this._beforeCloseGuard = guard;
+  }
+
+  /**
+   * Checks if the modal can be closed by calling the beforeClose guard if present
+   * @returns Observable that emits true if modal can close, false otherwise
+   */
+  canClose(): Observable<boolean> {
+    if (!this._beforeCloseGuard) {
+      return of(true);
+    }
+
+    try {
+      const result = this._beforeCloseGuard();
+
+      if (typeof result === 'boolean') {
+        return of(result);
+      }
+
+      if (result instanceof Promise) {
+        return from(result).pipe(
+          catchError(() => of(false))
+        );
+      }
+
+      if (isObservable(result)) {
+        return result.pipe(
+          catchError(() => of(false))
+        );
+      }
+
+      return of(false);
+    } catch (error) {
+      console.error('Error in beforeClose guard:', error);
+      return of(false);
+    }
+  }
+
+  /**
+   * Attempts to close the modal after checking the beforeClose guard
+   */
   close(result?: R, reason: CloseReason = 'programmatic'): void {
+    if (this._isClosing) {
+      return;
+    }
+
+    this.canClose().subscribe(canClose => {
+      if (!canClose) {
+        return;
+      }
+
+      this._isClosing = true;
+
+      if (this.openingTimeoutId) {
+        clearTimeout(this.openingTimeoutId);
+        this.openingTimeoutId = undefined;
+      }
+
+      this._animationService.applyClosingAnimation(
+        this._overlayRef,
+        this.animationEnabled,
+        this.animationDuration,
+        () => {
+          this._overlayRef.dispose();
+          this._afterClosed.next({ reason, data: result });
+          this._afterClosed.complete();
+        }
+      );
+    });
+  }
+
+  /**
+   * Forces the modal to close without checking the beforeClose guard
+   * Use with caution - bypasses user confirmation
+   */
+  forceClose(result?: R, reason: CloseReason = 'programmatic'): void {
     if (this._isClosing) {
       return;
     }
@@ -27,34 +114,16 @@ export class ModalRef<T = unknown, R = unknown> {
       this.openingTimeoutId = undefined;
     }
 
-    if (this.animationEnabled) {
-      const overlayElement = this._overlayRef.overlayElement;
-      const backdropElement = this._overlayRef.backdropElement;
-
-      const duration = `${this.animationDuration}ms`;
-      overlayElement.style.setProperty('--modal-animation-duration', duration);
-      if (backdropElement) {
-        backdropElement.style.setProperty('--modal-animation-duration', duration);
-      }
-
-      overlayElement.classList.remove('modal-opening', 'modal-opened');
-      overlayElement.classList.add('modal-closing');
-
-      if (backdropElement) {
-        backdropElement.classList.remove('modal-backdrop-opening', 'modal-backdrop-opened');
-        backdropElement.classList.add('modal-backdrop-closing');
-      }
-
-      setTimeout(() => {
+    this._animationService.applyClosingAnimation(
+      this._overlayRef,
+      this.animationEnabled,
+      this.animationDuration,
+      () => {
         this._overlayRef.dispose();
         this._afterClosed.next({ reason, data: result });
         this._afterClosed.complete();
-      }, this.animationDuration);
-    } else {
-      this._overlayRef.dispose();
-      this._afterClosed.next({ reason, data: result });
-      this._afterClosed.complete();
-    }
+      }
+    );
   }
 
   afterClosed(): Observable<CloseResult<R>> {

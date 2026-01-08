@@ -1,95 +1,98 @@
-import { ComponentType, Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
+import { ComponentType } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { inject, Injectable, InjectionToken, Injector } from '@angular/core';
 import { ModalRef } from './modal-ref';
 import { ModalConfig } from './modal-config';
 import { Subscription } from 'rxjs';
-import { ConfigurableFocusTrapFactory, FocusTrap } from '@angular/cdk/a11y';
+import { ModalStackManager } from './services/modal-stack-manager.service';
+import { ModalAnimationService } from './services/modal-animation.service';
+import { ModalAccessibilityService } from './services/modal-accessibility.service';
+import { ModalOverlayService } from './services/modal-overlay.service';
 
+/**
+ * Main modal service that acts as a facade for modal operations
+ * Delegates responsibilities to specialized services
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class Modal {
-  private readonly _overlay = inject(Overlay);
   private readonly _injector = inject(Injector);
-  private readonly _focusTrapFactory = inject(ConfigurableFocusTrapFactory);
+  private readonly _stackManager = inject(ModalStackManager);
+  private readonly _animationService = inject(ModalAnimationService);
+  private readonly _accessibilityService = inject(ModalAccessibilityService);
+  private readonly _overlayService = inject(ModalOverlayService);
 
   open<T = unknown,D = unknown, R = unknown>(
     component: ComponentType<T>,
     config?: ModalConfig<D>,
   ): ModalRef<T, R> {
-    // it should prevent scrolling of the body when the modal is open
-    this._setBodyOverflow();
+    const modalId = this._stackManager.generateModalId();
 
-    // 1.create overlay
-    const overlayRef = this._overlay.create(this._createOverlayConfig(config));
-    // 2.create modal ref
-    const modalRef = new ModalRef<T, R>(overlayRef);
+    const overlayRef = this._overlayService.createOverlay(config);
 
-    // 3.create custom injector
+    const modalRef = new ModalRef<T, R>(overlayRef, modalId, this._animationService);
+
+    modalRef.level = this._stackManager.addToStack(modalRef);
+
+    this._stackManager.setZIndex(overlayRef, modalRef.level);
+
+    if (this._stackManager.getStackSize() === 1) {
+      this._accessibilityService.disableBodyScroll();
+    }
+
     const customInjector = this._createInjector(modalRef, config, this._injector);
 
-    // 4.create component portal
     const portal = new ComponentPortal(component, null, customInjector);
 
-    // 5.attach component to overlay
     const componentRef = overlayRef.attach(portal);
 
-    // 6.set animation config
     modalRef.animationEnabled = config?.animation ?? true;
-    modalRef.animationDuration = config?.animationDuration ?? 300;
+    modalRef.animationDuration = config?.animationDuration ?? this._animationService.getDefaultDuration();
 
-    // 7.set aria attributes
-    this._setAriaAttributes(overlayRef.overlayElement, config);
+    this._accessibilityService.setAriaAttributes(overlayRef.overlayElement, config);
 
-    // 8.set component instance
     modalRef.componentInstance = componentRef.instance;
 
-    // 9.add opening animation classes
-    this._applyOpeningAnimation(overlayRef, modalRef);
+    if (config?.beforeClose) {
+      modalRef.setBeforeCloseGuard(config.beforeClose);
+    }
 
-    // 10.setup focus trap
-    const focusTrap = this._focusTrap(overlayRef, config);
+    this._animationService.applyOpeningAnimation(overlayRef, modalRef);
 
-    // 11.create subscriptions array for this modal instance
+    const focusTrap = this._accessibilityService.createFocusTrap(overlayRef, config);
+
     const subscriptions: Subscription[] = [];
 
-    // 12.handle backdrop click
     if(config?.hasBackdrop !== false) {
       subscriptions.push(overlayRef.backdropClick().subscribe(() => {
-        modalRef.close();
+        if (this._stackManager.isTopmostModal(modalRef)) {
+          modalRef.close(undefined, 'backdrop');
+        }
       }));
     }
 
-    // 13.handle escape key
     this._handleEscapeKey(overlayRef, modalRef, config, subscriptions);
 
     const previouslyFocusedElement = document.activeElement as HTMLElement;
 
-    // 14.cleanup when modal closes
     subscriptions.push(overlayRef.detachments().subscribe(() => {
+      this._stackManager.removeFromStack(modalRef);
+
       focusTrap.destroy();
+
       subscriptions.forEach(sub => sub.unsubscribe());
 
-      this._resetBodyOverflow();
-      if(previouslyFocusedElement && previouslyFocusedElement.focus) {
-        previouslyFocusedElement.focus();
+      if (this._stackManager.isEmpty()) {
+        this._accessibilityService.enableBodyScroll();
+      }
+
+      if (this._stackManager.isEmpty()) {
+        this._accessibilityService.restoreFocus(previouslyFocusedElement);
       }
     }));
 
-    // 15.return modal ref
     return modalRef;
-  }
-
-  private _createOverlayConfig<D = unknown>(config?: ModalConfig<D>): OverlayConfig {
-    return {
-      hasBackdrop: config?.hasBackdrop ?? true,
-      backdropClass: config?.backdropClass ?? 'modal-backdrop',
-      panelClass: config?.panelClass,
-      width: config?.width ?? '500px',
-      height: config?.height,
-      positionStrategy: this._overlay.position().global().centerHorizontally().centerVertically(),
-    };
   }
 
   private _createInjector<T = unknown, D = unknown, R = unknown>(
@@ -107,7 +110,7 @@ export class Modal {
   }
 
   private _handleEscapeKey<T = unknown, D = unknown, R = unknown>(
-    overlayRef: OverlayRef,
+    overlayRef: import('@angular/cdk/overlay').OverlayRef,
     modalRef: ModalRef<T, R>,
     config: ModalConfig<D> | undefined,
     subscriptions: Subscription[]
@@ -116,70 +119,29 @@ export class Modal {
       return;
     }
     subscriptions.push(overlayRef.keydownEvents().subscribe((event) => {
-      if (event.key === 'Escape') {
-        modalRef.close();
+      if (event.key === 'Escape' && this._stackManager.isTopmostModal(modalRef)) {
+        modalRef.close(undefined, 'escape');
       }
     }));
   }
 
-  private _focusTrap(overlayRef: OverlayRef, config: ModalConfig | undefined): FocusTrap {
-    const element = overlayRef.overlayElement;
-
-    const focusTrap = this._focusTrapFactory.create(element);
-
-    if(config?.focusTrap !== false) {
-      focusTrap.focusInitialElementWhenReady();
-    }
-
-    return focusTrap;
+  /**
+   * Closes all open modals in reverse order (topmost first)
+   */
+  closeAll(): void {
+    this._stackManager.closeAll();
   }
 
-  private _setAriaAttributes(overlayElement: HTMLElement, config: ModalConfig | undefined): void {
-    if (config?.ariaLabel) {
-      overlayElement.setAttribute('aria-label', config.ariaLabel);
-    }
-    if (config?.ariaLabelledBy) {
-      overlayElement.setAttribute('aria-labelledby', config.ariaLabelledBy);
-    }
-    if (config?.ariaDescribedBy) {
-      overlayElement.setAttribute('aria-describedby', config.ariaDescribedBy);
-    }
-    if (config?.role) {
-      overlayElement.setAttribute('role', config.role);
-    }
-  }
+  /**
+   * Gets the number of currently open modals as a readonly signal
+   */
+  readonly openModalsCount = this._stackManager.openModalsCount;
 
-  private _resetBodyOverflow(): void {
-    document.body.style.overflow = 'auto';
-  }
-
-  private _setBodyOverflow(): void {
-    document.body.style.overflow = 'hidden';
-  }
-
-  private _applyOpeningAnimation<T = unknown, R = unknown>(overlayRef: OverlayRef, modalRef: ModalRef<T, R>): void {
-    if (modalRef.animationEnabled) {
-      const duration = `${modalRef.animationDuration}ms`;
-      overlayRef.overlayElement.style.setProperty('--modal-animation-duration', duration);
-      if (overlayRef.backdropElement) {
-        overlayRef.backdropElement.style.setProperty('--modal-animation-duration', duration);
-      }
-
-      overlayRef.overlayElement.classList.add('modal-opening');
-      if (overlayRef.backdropElement) {
-        overlayRef.backdropElement.classList.add('modal-backdrop-opening');
-      }
-
-      modalRef.openingTimeoutId = setTimeout(() => {
-        overlayRef.overlayElement.classList.remove('modal-opening');
-        overlayRef.overlayElement.classList.add('modal-opened');
-        if (overlayRef.backdropElement) {
-          overlayRef.backdropElement.classList.remove('modal-backdrop-opening');
-          overlayRef.backdropElement.classList.add('modal-backdrop-opened');
-        }
-        modalRef.openingTimeoutId = undefined;
-      }, modalRef.animationDuration) as any;
-    }
+  /**
+   * Gets a readonly array of all open modal refs
+   */
+  get openModals(): readonly ModalRef<any, any>[] {
+    return this._stackManager.getAllModals();
   }
 }
 
