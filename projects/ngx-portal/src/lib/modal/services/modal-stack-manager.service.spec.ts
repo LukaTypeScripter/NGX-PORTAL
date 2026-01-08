@@ -1,10 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { ModalStackManager } from "./modal-stack-manager.service";
 import { ModalRef } from "../modal-ref";
-import { CloseResult } from "../modal-config";
-import { Subject } from "rxjs";
 import { OverlayRef } from "@angular/cdk/overlay";
-import { ModalAnimationService } from "./modal-animation.service";
 import { vi } from 'vitest';
 import { createModalRefMock } from "../test-helper";
 describe('ModalStackManager', () => {
@@ -349,7 +346,7 @@ describe('ModalStackManager', () => {
 
   describe('openModalsCount signal', () => {
     it('should be reactive to stack changes', () => {
-      const modal1 = createModalRefMock('modal-1');
+        const modal1 = createModalRefMock('modal-1');
       const modal2 = createModalRefMock('modal-2');
 
       expect(service.openModalsCount()).toBe(0);
