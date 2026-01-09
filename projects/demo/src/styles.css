@@ -3,6 +3,9 @@
 /* Import modal animations */
 @import '../../ngx-portal/src/lib/modal/modal.css';
 
+/* Import bottom sheet styles */
+@import '../../ngx-portal/src/lib/bottom-sheet/bottom-sheet.css';
+
 /* Modal backdrop styles */
 .modal-backdrop {
   background-color: rgba(0, 0, 0, 0.5);

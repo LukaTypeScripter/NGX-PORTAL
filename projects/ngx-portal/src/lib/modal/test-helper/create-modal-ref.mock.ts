@@ -16,7 +16,7 @@ import { ModalAnimationService } from "../services/modal-animation.service";
             afterClosed: () => new Subject<CloseResult<any>>().asObservable(),
             _isClosing: false,
             _afterClosed: new Subject<CloseResult<any>>(),
-            _overlayRef: {
+            overlayRef: {
                 overlayElement: document.createElement('div'),
                 backdropElement: document.createElement('div'),
             } as unknown as OverlayRef,

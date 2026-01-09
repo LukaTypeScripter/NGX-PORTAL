@@ -51,7 +51,11 @@
                 "input": "projects/demo/public"
               }
             ],
-            "styles": ["projects/demo/src/styles.css"],
+            "styles": [
+              "projects/demo/src/styles.css",
+              "projects/ngx-portal/src/lib/modal/modal.css",
+              "projects/ngx-portal/src/lib/bottom-sheet/bottom-sheet.css"
+            ],
             "server": "projects/demo/src/main.server.ts",
             "outputMode": "server",
             "ssr": {

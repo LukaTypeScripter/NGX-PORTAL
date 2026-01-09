@@ -2,9 +2,11 @@ import { OverlayRef } from '@angular/cdk/overlay';
 import { from, isObservable, Observable, of, Subject } from 'rxjs';
 import { BeforeCloseGuard, CloseReason, CloseResult } from './modal-config';
 import { ModalAnimationService } from './services/modal-animation.service';
-import { catchError, map } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
+import { PortalRefBase } from '../shared/portal-ref-base';
 
-export class ModalRef<T = unknown, R = unknown> {
+export class ModalRef<T = unknown, R = unknown> extends PortalRefBase {
+    readonly overlayRef: OverlayRef;
     componentInstance?: T;
     animationEnabled = true;
     animationDuration = 300;
@@ -17,11 +19,13 @@ export class ModalRef<T = unknown, R = unknown> {
   private _beforeCloseGuard?: BeforeCloseGuard;
 
   constructor(
-    private readonly _overlayRef: OverlayRef,
+    overlayRef: OverlayRef,
     id: string,
     private readonly _animationService: ModalAnimationService,
   ) {
+    super();
     this.id = id;
+    this.overlayRef = overlayRef;
   }
 
   /**
@@ -87,11 +91,11 @@ export class ModalRef<T = unknown, R = unknown> {
       }
 
       this._animationService.applyClosingAnimation(
-        this._overlayRef,
+        this.overlayRef,
         this.animationEnabled,
         this.animationDuration,
         () => {
-          this._overlayRef.dispose();
+          this.overlayRef.dispose();
           this._afterClosed.next({ reason, data: result });
           this._afterClosed.complete();
         }
@@ -115,11 +119,11 @@ export class ModalRef<T = unknown, R = unknown> {
     }
 
     this._animationService.applyClosingAnimation(
-      this._overlayRef,
+      this.overlayRef,
       this.animationEnabled,
       this.animationDuration,
       () => {
-        this._overlayRef.dispose();
+        this.overlayRef.dispose();
         this._afterClosed.next({ reason, data: result });
         this._afterClosed.complete();
       }

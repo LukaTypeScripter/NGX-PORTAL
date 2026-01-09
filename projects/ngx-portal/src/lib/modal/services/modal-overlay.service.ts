@@ -1,35 +1,34 @@
 import { Injectable, inject } from '@angular/core';
-import { Overlay, OverlayConfig } from '@angular/cdk/overlay';
 import { ModalConfig } from '../modal-config';
+import { PortalOverlayService } from '../../shared/services/portal-overlay.service';
 
 /**
  * Service responsible for creating and configuring modal overlays
+ * Delegates to shared PortalOverlayService
  */
 @Injectable({
   providedIn: 'root',
 })
 export class ModalOverlayService {
-  private readonly _overlay = inject(Overlay);
+  private readonly _portalOverlay = inject(PortalOverlayService);
 
   /**
-   * Creates an overlay configuration for a modal
-   */
-  createOverlayConfig<D = unknown>(config?: ModalConfig<D>): OverlayConfig {
-    return {
-      hasBackdrop: config?.hasBackdrop ?? true,
-      backdropClass: config?.backdropClass ?? 'modal-backdrop',
-      panelClass: config?.panelClass,
-      width: config?.width ?? '500px',
-      height: config?.height,
-      positionStrategy: this._overlay.position().global().centerHorizontally().centerVertically(),
-    };
-  }
-
-  /**
-   * Creates an overlay with the given configuration
+   * Creates an overlay with the given modal configuration
    */
   createOverlay<D = unknown>(config?: ModalConfig<D>) {
-    const overlayConfig = this.createOverlayConfig(config);
-    return this._overlay.create(overlayConfig);
+    const overlay = this._portalOverlay.getOverlay();
+    const positionStrategy = overlay.position().global().centerHorizontally().centerVertically();
+
+    return this._portalOverlay.createOverlay(
+      {
+        ...config,
+        backdropClass: config?.backdropClass ?? 'modal-backdrop',
+      },
+      positionStrategy,
+      {
+        width: config?.width ?? '500px',
+        height: config?.height,
+      }
+    );
   }
 }

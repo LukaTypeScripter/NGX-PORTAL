@@ -49,6 +49,9 @@ import { ModalRef, MODAL_DATA, Modal } from '../../../ngx-portal/src/public-api'
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         min-width: 400px;
+        width:100%;
+        height:100%;
+ 
       }
 
       h2 {

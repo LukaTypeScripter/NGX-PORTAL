@@ -8,7 +8,7 @@ import { ModalStackManager } from './services/modal-stack-manager.service';
 import { ModalAnimationService } from './services/modal-animation.service';
 import { ModalAccessibilityService } from './services/modal-accessibility.service';
 import { ModalOverlayService } from './services/modal-overlay.service';
-
+import { DragAndDropModalService } from './services/drag-and-drop-modal.service';
 /**
  * Main modal service that acts as a facade for modal operations
  * Delegates responsibilities to specialized services
@@ -22,7 +22,7 @@ export class Modal {
   private readonly _animationService = inject(ModalAnimationService);
   private readonly _accessibilityService = inject(ModalAccessibilityService);
   private readonly _overlayService = inject(ModalOverlayService);
-
+  private readonly _dragAndDropModalService = inject(DragAndDropModalService);
   open<T = unknown,D = unknown, R = unknown>(
     component: ComponentType<T>,
     config?: ModalConfig<D>,
@@ -56,6 +56,10 @@ export class Modal {
 
     if (config?.beforeClose) {
       modalRef.setBeforeCloseGuard(config.beforeClose);
+    }
+
+    if (config?.dragAndDrop) {
+      this._dragAndDropModalService.createDragAndDropModal<T, R>(modalRef);
     }
 
     this._animationService.applyOpeningAnimation(overlayRef, modalRef);

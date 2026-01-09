@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { PortalConfigBase } from '../shared/portal-config-base';
 
 export type CloseReason = 'backdrop' | 'escape' | 'programmatic';
 
@@ -13,19 +14,11 @@ export interface CloseResult<R> {
  */
 export type BeforeCloseGuard = () => boolean | Observable<boolean> | Promise<boolean>;
 
-export interface ModalConfig<T = unknown> {
-  data?: T;
+export interface ModalConfig<T = unknown> extends PortalConfigBase<T> {
+  dragAndDrop?: boolean;
   width?: string;
   height?: string;
-  panelClass?: string | string[];
-  hasBackdrop?: boolean;
-  backdropClass?: string;
-  disableClose?: boolean;
-  ariaLabel?: string;
-  ariaLabelledBy?: string;
-  ariaDescribedBy?: string;
   role?: 'dialog' | 'alertdialog';
-  focusTrap?: boolean;
   animation?: boolean;
   animationDuration?: number;
   /**
