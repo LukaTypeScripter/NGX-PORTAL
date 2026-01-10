@@ -23,7 +23,7 @@ export class Modal {
   private readonly _accessibilityService = inject(ModalAccessibilityService);
   private readonly _overlayService = inject(ModalOverlayService);
   private readonly _dragAndDropModalService = inject(DragAndDropModalService);
-  open<T = unknown,D = unknown, R = unknown>(
+  open<T = unknown, D = unknown, R = unknown>(
     component: ComponentType<T>,
     config?: ModalConfig<D>,
   ): ModalRef<T, R> {
@@ -48,7 +48,8 @@ export class Modal {
     const componentRef = overlayRef.attach(portal);
 
     modalRef.animationEnabled = config?.animation ?? true;
-    modalRef.animationDuration = config?.animationDuration ?? this._animationService.getDefaultDuration();
+    modalRef.animationDuration =
+      config?.animationDuration ?? this._animationService.getDefaultDuration();
 
     this._accessibilityService.setAriaAttributes(overlayRef.overlayElement, config);
 
@@ -68,33 +69,37 @@ export class Modal {
 
     const subscriptions: Subscription[] = [];
 
-    if(config?.hasBackdrop !== false) {
-      subscriptions.push(overlayRef.backdropClick().subscribe(() => {
-        if (this._stackManager.isTopmostModal(modalRef)) {
-          modalRef.close(undefined, 'backdrop');
-        }
-      }));
+    if (config?.hasBackdrop !== false) {
+      subscriptions.push(
+        overlayRef.backdropClick().subscribe(() => {
+          if (this._stackManager.isTopmostModal(modalRef)) {
+            modalRef.close(undefined, 'backdrop');
+          }
+        }),
+      );
     }
 
     this._handleEscapeKey(overlayRef, modalRef, config, subscriptions);
 
     const previouslyFocusedElement = document.activeElement as HTMLElement;
 
-    subscriptions.push(overlayRef.detachments().subscribe(() => {
-      this._stackManager.removeFromStack(modalRef);
+    subscriptions.push(
+      overlayRef.detachments().subscribe(() => {
+        this._stackManager.removeFromStack(modalRef);
 
-      focusTrap.destroy();
+        focusTrap.destroy();
 
-      subscriptions.forEach(sub => sub.unsubscribe());
+        subscriptions.forEach((sub) => sub.unsubscribe());
 
-      if (this._stackManager.isEmpty()) {
-        this._accessibilityService.enableBodyScroll();
-      }
+        if (this._stackManager.isEmpty()) {
+          this._accessibilityService.enableBodyScroll();
+        }
 
-      if (this._stackManager.isEmpty()) {
-        this._accessibilityService.restoreFocus(previouslyFocusedElement);
-      }
-    }));
+        if (this._stackManager.isEmpty()) {
+          this._accessibilityService.restoreFocus(previouslyFocusedElement);
+        }
+      }),
+    );
 
     return modalRef;
   }
@@ -117,16 +122,18 @@ export class Modal {
     overlayRef: import('@angular/cdk/overlay').OverlayRef,
     modalRef: ModalRef<T, R>,
     config: ModalConfig<D> | undefined,
-    subscriptions: Subscription[]
+    subscriptions: Subscription[],
   ): void {
-    if(config?.disableClose) {
+    if (config?.disableClose) {
       return;
     }
-    subscriptions.push(overlayRef.keydownEvents().subscribe((event) => {
-      if (event.key === 'Escape' && this._stackManager.isTopmostModal(modalRef)) {
-        modalRef.close(undefined, 'escape');
-      }
-    }));
+    subscriptions.push(
+      overlayRef.keydownEvents().subscribe((event) => {
+        if (event.key === 'Escape' && this._stackManager.isTopmostModal(modalRef)) {
+          modalRef.close(undefined, 'escape');
+        }
+      }),
+    );
   }
 
   /**

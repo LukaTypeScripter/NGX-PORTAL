@@ -54,7 +54,9 @@
 .is-dragging {
   cursor: grabbing !important;
   user-select: none !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 9999 !important;
 }
 
@@ -190,8 +192,6 @@
 .is-resizing .resize-handle {
   pointer-events: auto !important;
 }
-
-
 
 @keyframes fadeIn {
   from {

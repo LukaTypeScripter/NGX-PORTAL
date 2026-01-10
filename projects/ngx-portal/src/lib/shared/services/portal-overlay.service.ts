@@ -18,7 +18,7 @@ export class PortalOverlayService {
   createOverlay(
     config: PortalConfigBase,
     positionStrategy: PositionStrategy,
-    additionalConfig?: Partial<OverlayConfig>
+    additionalConfig?: Partial<OverlayConfig>,
   ) {
     const overlayConfig: OverlayConfig = {
       hasBackdrop: config.hasBackdrop ?? true,

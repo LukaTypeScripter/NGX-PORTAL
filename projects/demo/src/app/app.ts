@@ -1,6 +1,11 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Modal, DragAndDropModalService, ModalResizeService, BottomSheet } from '../../../ngx-portal/src/public-api';
+import {
+  Modal,
+  DragAndDropModalService,
+  ModalResizeService,
+  BottomSheet,
+} from '../../../ngx-portal/src/public-api';
 import { TestModalComponent } from './test-modal.component';
 import { BottomSheetTestComponent } from './bottom-sheet-test.component';
 
@@ -43,7 +48,7 @@ export class App {
           dragAndDrop: true,
           data: {
             message: `Modal #${i} - Stack Level: ${this.modal.openModalsCount()}`,
-            timestamp: new Date()
+            timestamp: new Date(),
           },
           animationDuration: 300,
         });
@@ -51,7 +56,10 @@ export class App {
         console.log(`Opened modal ${i}. Total open modals: ${this.modal.openModalsCount()}`);
 
         modalRef.afterClosed().subscribe((result) => {
-          console.log(`Modal ${i} closed. Remaining modals: ${this.modal.openModalsCount()}`, result);
+          console.log(
+            `Modal ${i} closed. Remaining modals: ${this.modal.openModalsCount()}`,
+            result,
+          );
         });
       }, i * 200);
     }
@@ -68,12 +76,10 @@ export class App {
       height: '500px',
       data: {
         message: 'Resizable & Draggable Modal! Try dragging and resizing!',
-        timestamp: new Date()
+        timestamp: new Date(),
       },
       animationDuration: 300,
     });
-
-
 
     // Enable resize with all handles
     this.resizeService.enableResize(modalRef, {
@@ -103,8 +109,8 @@ export class App {
       data: {
         title: 'Basic Bottom Sheet',
         description: 'Default configuration with 50% and 100% snap points',
-        message: 'Drag the handle up/down or swipe to dismiss!'
-      }
+        message: 'Drag the handle up/down or swipe to dismiss!',
+      },
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -117,10 +123,10 @@ export class App {
       data: {
         title: 'Multiple Snap Points',
         description: 'Three snap points: 30%, 60%, and 90% of screen height',
-        message: 'Drag to different heights - it will snap to nearest point!'
+        message: 'Drag to different heights - it will snap to nearest point!',
       },
       snapPoints: [0.3, 0.6, 0.9],
-      initialSnapPoint: 1
+      initialSnapPoint: 1,
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -134,10 +140,10 @@ export class App {
         title: 'Custom Snap Points',
         description: 'Mixed format: pixels, percentages, and vh units',
         message: 'Snap points: 300px, 50%, 80vh',
-        showFullData: true
+        showFullData: true,
       },
       snapPoints: ['300px', '50%', '80vh'],
-      initialSnapPoint: 0
+      initialSnapPoint: 0,
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -150,10 +156,10 @@ export class App {
       data: {
         title: 'No Drag Handle',
         description: 'Drag disabled - use buttons to close',
-        message: 'Cannot be dragged or swiped to dismiss'
+        message: 'Cannot be dragged or swiped to dismiss',
       },
       enableDrag: false,
-      snapPoints: [0.6]
+      snapPoints: [0.6],
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -166,11 +172,11 @@ export class App {
       data: {
         title: 'Cannot Dismiss on Backdrop',
         description: 'Backdrop click disabled and swipe dismiss disabled',
-        message: 'Must use buttons to close'
+        message: 'Must use buttons to close',
       },
       disableClose: true,
       dismissOnSwipeDown: false,
-      snapPoints: [0.5]
+      snapPoints: [0.5],
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -183,10 +189,10 @@ export class App {
       data: {
         title: 'Fast Animation',
         description: 'Animation duration: 150ms',
-        message: 'Notice the quick open/close animations!'
+        message: 'Notice the quick open/close animations!',
       },
       animationDuration: 150,
-      snapPoints: [0.5, 0.9]
+      snapPoints: [0.5, 0.9],
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -199,10 +205,10 @@ export class App {
       data: {
         title: 'Slow Animation',
         description: 'Animation duration: 800ms',
-        message: 'Notice the slow, smooth animations'
+        message: 'Notice the slow, smooth animations',
       },
       animationDuration: 800,
-      snapPoints: [0.4, 0.8]
+      snapPoints: [0.4, 0.8],
     });
 
     ref.afterClosed().subscribe((result) => {
@@ -216,10 +222,10 @@ export class App {
       data: {
         title: 'First Bottom Sheet',
         description: 'Second sheet will open automatically',
-        message: 'This demonstrates stacking of multiple bottom sheets'
+        message: 'This demonstrates stacking of multiple bottom sheets',
       },
       snapPoints: [0.4],
-      initialSnapPoint: 0
+      initialSnapPoint: 0,
     });
 
     // Wait a bit then open second
@@ -228,10 +234,10 @@ export class App {
         data: {
           title: 'Second Bottom Sheet',
           description: 'Stacked on top of the first one',
-          message: 'Notice the z-index layering!'
+          message: 'Notice the z-index layering!',
         },
         snapPoints: [0.6],
-        backdropClass: 'bottom-sheet-backdrop-stacked'
+        backdropClass: 'bottom-sheet-backdrop-stacked',
       });
 
       ref2.afterClosed().subscribe(() => {
@@ -249,11 +255,11 @@ export class App {
       data: {
         title: 'Sensitive Swipe Detection',
         description: 'Lower velocity threshold for snap/dismiss',
-        message: 'Even gentle swipes will trigger snap behavior'
+        message: 'Even gentle swipes will trigger snap behavior',
       },
       swipeVelocityThreshold: 0.2,
       dismissThreshold: 0.2,
-      snapPoints: [0.4, 0.7]
+      snapPoints: [0.4, 0.7],
     });
 
     ref.afterClosed().subscribe((result) => {

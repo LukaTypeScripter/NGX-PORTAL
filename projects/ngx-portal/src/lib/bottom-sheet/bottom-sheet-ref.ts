@@ -21,7 +21,7 @@ export class BottomSheetRef<T = unknown, R = unknown> extends PortalRefBase {
   constructor(
     overlayRef: OverlayRef,
     id: string,
-    private readonly _animationService: BottomSheetAnimationService
+    private readonly _animationService: BottomSheetAnimationService,
   ) {
     super();
     this.overlayRef = overlayRef;
@@ -51,7 +51,7 @@ export class BottomSheetRef<T = unknown, R = unknown> extends PortalRefBase {
         this.overlayRef.dispose();
         this._afterClosed.next(result);
         this._afterClosed.complete();
-      }
+      },
     );
   }
 
@@ -84,21 +84,5 @@ export class BottomSheetRef<T = unknown, R = unknown> extends PortalRefBase {
    */
   updateSnapPoint(index: number): void {
     this.currentSnapPointIndex = index;
-  }
-
-  /**
-   * Expands the bottom sheet to the next higher snap point
-   */
-  expand(): void {
-    // Will be implemented by BottomSheet service
-    console.warn('expand() should be called through BottomSheet service');
-  }
-
-  /**
-   * Collapses the bottom sheet to the next lower snap point
-   */
-  collapse(): void {
-    // Will be implemented by BottomSheet service
-    console.warn('collapse() should be called through BottomSheet service');
   }
 }

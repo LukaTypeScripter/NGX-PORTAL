@@ -8,11 +8,16 @@ import { ModalRef, MODAL_DATA, Modal } from '../../../ngx-portal/src/public-api'
   template: `
     <div class="modal-content">
       <h2>Focus Trap Test Modal</h2>
-      <p>Try pressing Tab to cycle through the focusable elements below. Focus should stay trapped within this modal!</p>
+      <p>
+        Try pressing Tab to cycle through the focusable elements below. Focus should stay trapped
+        within this modal!
+      </p>
 
       @if (data) {
         <p>Data received: {{ data | json }}</p>
-        <p style="font-size: 0.875rem; color: #666;">Modal ID: {{ modalRef.id }} | Level: {{ modalRef.level }}</p>
+        <p style="font-size: 0.875rem; color: #666;">
+          Modal ID: {{ modalRef.id }} | Level: {{ modalRef.level }}
+        </p>
       }
 
       <div class="form-group">
@@ -49,9 +54,8 @@ import { ModalRef, MODAL_DATA, Modal } from '../../../ngx-portal/src/public-api'
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         min-width: 400px;
-        width:100%;
-        height:100%;
- 
+        width: 100%;
+        height: 100%;
       }
 
       h2 {
@@ -135,7 +139,9 @@ import { ModalRef, MODAL_DATA, Modal } from '../../../ngx-portal/src/public-api'
   imports: [JsonPipe],
 })
 export class TestModalComponent {
-  protected readonly modalRef = inject(ModalRef<TestModalComponent, { message: string; timestamp: Date }>);
+  protected readonly modalRef = inject(
+    ModalRef<TestModalComponent, { message: string; timestamp: Date }>,
+  );
   protected readonly data = inject(MODAL_DATA, { optional: true });
   private readonly modalService = inject(Modal);
 
@@ -152,10 +158,9 @@ export class TestModalComponent {
       width: '450px',
       data: {
         message: `Nested modal opened from ${this.modalRef.id}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       },
       animationDuration: 300,
     });
   }
 }
-

@@ -1,15 +1,15 @@
-import { TestBed } from "@angular/core/testing";
-import { ModalStackManager } from "./modal-stack-manager.service";
-import { ModalRef } from "../modal-ref";
-import { OverlayRef } from "@angular/cdk/overlay";
+import { TestBed } from '@angular/core/testing';
+import { ModalStackManager } from './modal-stack-manager.service';
+import { ModalRef } from '../modal-ref';
+import { OverlayRef } from '@angular/cdk/overlay';
 import { vi } from 'vitest';
-import { createModalRefMock } from "../test-helper";
+import { createModalRefMock } from '../test-helper';
 describe('ModalStackManager', () => {
   let service: ModalStackManager;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ModalStackManager]
+      providers: [ModalStackManager],
     });
     service = TestBed.inject(ModalStackManager);
   });
@@ -120,7 +120,7 @@ describe('ModalStackManager', () => {
     it('should set correct z-index for level 0', () => {
       const overlayRef = {
         overlayElement: document.createElement('div'),
-        backdropElement: document.createElement('div')
+        backdropElement: document.createElement('div'),
       } as unknown as OverlayRef;
 
       service.setZIndex(overlayRef, 0);
@@ -132,7 +132,7 @@ describe('ModalStackManager', () => {
     it('should set correct z-index for level 1', () => {
       const overlayRef = {
         overlayElement: document.createElement('div'),
-        backdropElement: document.createElement('div')
+        backdropElement: document.createElement('div'),
       } as unknown as OverlayRef;
 
       service.setZIndex(overlayRef, 1);
@@ -144,7 +144,7 @@ describe('ModalStackManager', () => {
     it('should set correct z-index for level 2', () => {
       const overlayRef = {
         overlayElement: document.createElement('div'),
-        backdropElement: document.createElement('div')
+        backdropElement: document.createElement('div'),
       } as unknown as OverlayRef;
 
       service.setZIndex(overlayRef, 2);
@@ -156,7 +156,7 @@ describe('ModalStackManager', () => {
     it('should handle missing backdrop element', () => {
       const overlayRef = {
         overlayElement: document.createElement('div'),
-        backdropElement: null
+        backdropElement: null,
       } as unknown as OverlayRef;
 
       expect(() => service.setZIndex(overlayRef, 0)).not.toThrow();
@@ -166,7 +166,7 @@ describe('ModalStackManager', () => {
 
   describe('isTopmostModal', () => {
     it('should return true for topmost modal', () => {
-        const modal1 = createModalRefMock('modal-1');
+      const modal1 = createModalRefMock('modal-1');
       const modal2 = createModalRefMock('modal-2');
 
       service.addToStack(modal1);
@@ -249,7 +249,7 @@ describe('ModalStackManager', () => {
     });
   });
 
-  describe('closeAll', () => {  
+  describe('closeAll', () => {
     it('should close all modals in reverse order', () => {
       const modal1 = createModalRefMock('modal-1');
       const modal2 = createModalRefMock('modal-2');
@@ -346,7 +346,7 @@ describe('ModalStackManager', () => {
 
   describe('openModalsCount signal', () => {
     it('should be reactive to stack changes', () => {
-        const modal1 = createModalRefMock('modal-1');
+      const modal1 = createModalRefMock('modal-1');
       const modal2 = createModalRefMock('modal-2');
 
       expect(service.openModalsCount()).toBe(0);
@@ -364,4 +364,4 @@ describe('ModalStackManager', () => {
       expect(service.openModalsCount()).toBe(0);
     });
   });
-});   
+});

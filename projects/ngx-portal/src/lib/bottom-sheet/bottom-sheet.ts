@@ -13,7 +13,7 @@ import { PortalStackManager } from '../shared/services/portal-stack-manager.serv
 import { BottomSheetContainerComponent } from './bottom-sheet-container.component';
 
 /**
- * Main service for opening and managing bottom sheets  
+ * Main service for opening and managing bottom sheets
  */
 @Injectable({
   providedIn: 'root',
@@ -29,10 +29,11 @@ export class BottomSheet {
 
   private _snapPointsMap = new WeakMap<BottomSheetRef<any, any>, any[]>();
   private _dragHandleMap = new WeakMap<BottomSheetRef<any, any>, HTMLElement>();
+  private _currentTransformMap = new WeakMap<BottomSheetRef<any, any>, number>();
 
   open<T = unknown, D = unknown, R = unknown>(
     component: ComponentType<T>,
-    config?: BottomSheetConfig<D>
+    config?: BottomSheetConfig<D>,
   ): BottomSheetRef<T, R> {
     const bottomSheetId = this._stackManager.generateId('bottom-sheet');
 
@@ -46,16 +47,23 @@ export class BottomSheet {
       },
       positionStrategy,
       {
-        panelClass: ['bottom-sheet-container', ...(Array.isArray(config?.panelClass) ? config.panelClass : config?.panelClass ? [config.panelClass] : [])],
+        panelClass: [
+          'bottom-sheet-container',
+          ...(Array.isArray(config?.panelClass)
+            ? config.panelClass
+            : config?.panelClass
+              ? [config.panelClass]
+              : []),
+        ],
         width: '100%',
         maxWidth: '100vw',
-      }
+      },
     );
 
     const bottomSheetRef = new BottomSheetRef<T, R>(
       overlayRef,
       bottomSheetId,
-      this._animationService
+      this._animationService,
     );
 
     bottomSheetRef.level = this._stackManager.addToStack(bottomSheetRef);
@@ -74,7 +82,8 @@ export class BottomSheet {
     bottomSheetRef.componentInstance = componentRef.instance;
 
     bottomSheetRef.animationEnabled = config?.animation ?? true;
-    bottomSheetRef.animationDuration = config?.animationDuration ?? this._animationService.getDefaultDuration();
+    bottomSheetRef.animationDuration =
+      config?.animationDuration ?? this._animationService.getDefaultDuration();
 
     const snapPoints = config?.snapPoints ?? [0.5, 1.0];
     if (!this._snapService.validateSnapPoints(snapPoints)) {
@@ -85,9 +94,11 @@ export class BottomSheet {
     this._snapPointsMap.set(bottomSheetRef, parsedSnapPoints);
 
     const initialSnapIndex = config?.initialSnapPoint ?? 0;
-    const initialSnapPoint = this._snapService.getInitialSnapPoint(parsedSnapPoints, initialSnapIndex);
+    const initialSnapPoint = this._snapService.getInitialSnapPoint(
+      parsedSnapPoints,
+      initialSnapIndex,
+    );
     bottomSheetRef.currentSnapPointIndex = initialSnapPoint.index;
-    const initialPosition = this._snapService.calculateSheetPosition(initialSnapPoint, window.innerHeight);
 
     const overlayElement = overlayRef.overlayElement;
     overlayElement.style.position = 'fixed';
@@ -132,7 +143,7 @@ export class BottomSheet {
           if (this._stackManager.isTopmost(bottomSheetRef)) {
             bottomSheetRef.dismiss();
           }
-        })
+        }),
       );
     }
 
@@ -147,6 +158,7 @@ export class BottomSheet {
         }
 
         this._snapPointsMap.delete(bottomSheetRef);
+        this._currentTransformMap.delete(bottomSheetRef);
 
         focusTrap.destroy();
 
@@ -156,29 +168,43 @@ export class BottomSheet {
           this._accessibilityService.enableBodyScroll();
           this._accessibilityService.restoreFocus(previouslyFocusedElement);
         }
-      })
+      }),
     );
 
     this._animationService.applyOpeningAnimation(
       overlayRef,
       bottomSheetRef,
       bottomSheetRef.animationEnabled,
-      bottomSheetRef.animationDuration
+      bottomSheetRef.animationDuration,
     );
 
     if (bottomSheetRef.animationEnabled) {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
+          const sheetHeight = overlayElement.offsetHeight;
+          const initialPosition = this._snapService.calculateSheetPosition(
+            initialSnapPoint,
+            sheetHeight,
+          );
+          this._currentTransformMap.set(bottomSheetRef, initialPosition);
           this._animationService.applySnapAnimation(
             overlayRef,
             initialPosition,
             bottomSheetRef.animationDuration,
-            true
+            true,
           );
         });
       });
     } else {
-      overlayRef.overlayElement.style.transform = `translateY(${initialPosition}px)`;
+      requestAnimationFrame(() => {
+        const sheetHeight = overlayElement.offsetHeight;
+        const initialPosition = this._snapService.calculateSheetPosition(
+          initialSnapPoint,
+          sheetHeight,
+        );
+        this._currentTransformMap.set(bottomSheetRef, initialPosition);
+        overlayRef.overlayElement.style.transform = `translateY(${initialPosition}px)`;
+      });
     }
 
     return bottomSheetRef;
@@ -206,7 +232,7 @@ export class BottomSheet {
   private _createInjector<T = unknown, D = unknown, R = unknown>(
     bottomSheetRef: BottomSheetRef<T, R>,
     config: BottomSheetConfig<D> | undefined,
-    parentInjector: Injector
+    parentInjector: Injector,
   ): Injector {
     return Injector.create({
       parent: parentInjector,
@@ -217,7 +243,10 @@ export class BottomSheet {
     });
   }
 
-  private _findDragHandle(overlayElement: HTMLElement, showHandle: boolean = true): HTMLElement | null {
+  private _findDragHandle(
+    overlayElement: HTMLElement,
+    showHandle: boolean = true,
+  ): HTMLElement | null {
     if (!showHandle) {
       return overlayElement;
     }
@@ -229,40 +258,47 @@ export class BottomSheet {
   private _setupGestureHandling<T, R, D>(
     bottomSheetRef: BottomSheetRef<T, R>,
     dragHandle: HTMLElement,
-    config?: BottomSheetConfig<D>
+    config?: BottomSheetConfig<D>,
   ): void {
     const overlayElement = bottomSheetRef.overlayRef.overlayElement;
     const parsedSnapPoints = this._snapPointsMap.get(bottomSheetRef);
 
     if (!parsedSnapPoints) return;
 
-    let initialSheetTop = 0;
+    let initialTranslateY = 0;
 
     this._gestureService.enableGestures(
       bottomSheetRef,
       dragHandle,
       () => {
-        initialSheetTop = overlayElement.getBoundingClientRect().top;
+        initialTranslateY = this._currentTransformMap.get(bottomSheetRef) ?? 0;
       },
       (deltaY: number, currentY: number) => {
-        const newPosition = initialSheetTop + deltaY;
-        const boundedPosition = Math.max(0, newPosition);
-        this._animationService.updateDragPosition(bottomSheetRef.overlayRef, boundedPosition);
+        const newTranslateY = initialTranslateY + deltaY;
+        const boundedTranslateY = Math.max(0, newTranslateY);
+        this._currentTransformMap.set(bottomSheetRef, boundedTranslateY);
+        this._animationService.updateDragPosition(bottomSheetRef.overlayRef, boundedTranslateY);
       },
       (velocity: number, deltaY: number) => {
-        const currentPosition = initialSheetTop + deltaY;
+        const currentTop = overlayElement.getBoundingClientRect().top;
+        const viewportHeight = window.innerHeight;
+        const currentVisibleHeight = viewportHeight - currentTop;
         const velocityThreshold = config?.swipeVelocityThreshold ?? 0.5;
         const dismissThreshold = config?.dismissThreshold ?? 0.3;
 
         if (config?.dismissOnSwipeDown !== false) {
+          const minVisibleHeight = viewportHeight * dismissThreshold;
           const swipe = this._gestureService.isSwipe(velocity, velocityThreshold);
+          const isBelowThreshold = currentVisibleHeight < minVisibleHeight;
+
+          if (isBelowThreshold) {
+            bottomSheetRef.dismiss();
+            return;
+          }
+
           if (swipe.isSwipe && swipe.direction === 'down') {
-            const shouldDismiss = this._snapService.shouldDismiss(
-              currentPosition,
-              window.innerHeight,
-              dismissThreshold
-            );
-            if (shouldDismiss) {
+            const lowestSnapPoint = parsedSnapPoints[0];
+            if (currentVisibleHeight < lowestSnapPoint.value) {
               bottomSheetRef.dismiss();
               return;
             }
@@ -270,28 +306,30 @@ export class BottomSheet {
         }
 
         const targetSnapPoint = this._snapService.determineTargetSnapPoint(
-          currentPosition,
+          currentVisibleHeight,
           velocity,
           parsedSnapPoints,
-          velocityThreshold
+          velocityThreshold,
         );
 
         if (targetSnapPoint === null) {
           bottomSheetRef.dismiss();
         } else {
+          const sheetHeight = overlayElement.offsetHeight;
           const targetPosition = this._snapService.calculateSheetPosition(
             targetSnapPoint,
-            window.innerHeight
+            sheetHeight,
           );
+          this._currentTransformMap.set(bottomSheetRef, targetPosition);
           bottomSheetRef.updateSnapPoint(targetSnapPoint.index);
           this._animationService.applySnapAnimation(
             bottomSheetRef.overlayRef,
             targetPosition,
             bottomSheetRef.animationDuration,
-            true
+            true,
           );
         }
-      }
+      },
     );
   }
 }

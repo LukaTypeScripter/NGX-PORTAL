@@ -4,9 +4,9 @@ import { PortalConfigBase } from '../shared/portal-config-base';
 export type CloseReason = 'backdrop' | 'escape' | 'programmatic';
 
 export interface CloseResult<R> {
-    reason: CloseReason;
-    data?: R;
-  }
+  reason: CloseReason;
+  data?: R;
+}
 
 /**
  * Function that can prevent modal from closing

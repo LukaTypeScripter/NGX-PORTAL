@@ -19,7 +19,7 @@ export class PortalAccessibilityService {
   setAriaAttributes(
     overlayElement: HTMLElement,
     config?: PortalConfigBase,
-    role: string = 'dialog'
+    role: string = 'dialog',
   ): void {
     if (config?.ariaLabel) {
       overlayElement.setAttribute('aria-label', config.ariaLabel);

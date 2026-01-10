@@ -26,7 +26,7 @@ export class BottomSheetAnimationService {
     overlayRef: OverlayRef,
     bottomSheetRef: BottomSheetRef<any, any>,
     animationEnabled: boolean = true,
-    duration: number = this._defaultDuration
+    duration: number = this._defaultDuration,
   ): void {
     const overlayElement = overlayRef.overlayElement;
     const backdropElement = overlayRef.backdropElement;
@@ -60,7 +60,7 @@ export class BottomSheetAnimationService {
     overlayRef: OverlayRef,
     animationEnabled: boolean = true,
     duration: number = this._defaultDuration,
-    onComplete?: () => void
+    onComplete?: () => void,
   ): void {
     const overlayElement = overlayRef.overlayElement;
     const backdropElement = overlayRef.backdropElement;
@@ -74,13 +74,33 @@ export class BottomSheetAnimationService {
 
     this._setAnimationDuration(overlayRef, `${duration}ms`);
 
-    overlayElement.classList.remove('bottom-sheet-opening', 'bottom-sheet-opened');
-    if (backdropElement) {
-      backdropElement.classList.remove('bottom-sheet-backdrop-opening', 'bottom-sheet-backdrop-opened');
+    overlayElement.classList.remove(
+      'bottom-sheet-opening',
+      'bottom-sheet-opened',
+      'bottom-sheet-snapping',
+    );
+
+    // Check if element has been dragged (has a transform applied)
+    const currentTransform = window.getComputedStyle(overlayElement).transform;
+    const hasDragTransform = currentTransform && currentTransform !== 'none';
+
+    if (hasDragTransform) {
+      // If dragged, animate from current position to off-screen
+      // Don't use keyframe animation (which resets to translateY(0))
+      overlayElement.classList.remove('bottom-sheet-dragging');
+      overlayElement.style.transition = `transform ${duration}ms ease-in, opacity ${duration}ms ease-in`;
+      overlayElement.style.transform = `translateY(100vh)`;
+      overlayElement.style.opacity = '0';
+    } else {
+      // Normal close from snap position - use keyframe animation
+      overlayElement.classList.add('bottom-sheet-closing');
     }
 
-    overlayElement.classList.add('bottom-sheet-closing');
     if (backdropElement) {
+      backdropElement.classList.remove(
+        'bottom-sheet-backdrop-opening',
+        'bottom-sheet-backdrop-opened',
+      );
       backdropElement.classList.add('bottom-sheet-backdrop-closing');
     }
 
@@ -99,7 +119,7 @@ export class BottomSheetAnimationService {
     overlayRef: OverlayRef,
     targetPosition: number,
     duration: number = this._defaultDuration,
-    useSpring: boolean = true
+    useSpring: boolean = true,
   ): void {
     const overlayElement = overlayRef.overlayElement;
 
@@ -153,7 +173,7 @@ export class BottomSheetAnimationService {
       'bottom-sheet-closing',
       'bottom-sheet-closed',
       'bottom-sheet-snapping',
-      'bottom-sheet-dragging'
+      'bottom-sheet-dragging',
     );
 
     if (backdropElement) {
@@ -161,7 +181,7 @@ export class BottomSheetAnimationService {
         'bottom-sheet-backdrop-opening',
         'bottom-sheet-backdrop-opened',
         'bottom-sheet-backdrop-closing',
-        'bottom-sheet-backdrop-closed'
+        'bottom-sheet-backdrop-closed',
       );
     }
 

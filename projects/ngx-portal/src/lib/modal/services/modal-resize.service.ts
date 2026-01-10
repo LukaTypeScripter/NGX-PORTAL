@@ -36,7 +36,7 @@ export class ModalResizeService {
       maxWidth?: number;
       maxHeight?: number;
       handles?: ResizeHandle[];
-    }
+    },
   ): void {
     const overlayRef = modalRef.overlayRef;
     const overlayElement = overlayRef.overlayElement;
@@ -111,10 +111,16 @@ export class ModalResizeService {
         }
       }
       if (state.handle.includes('s')) {
-        newHeight = Math.max(state.minHeight, Math.min(state.maxHeight, state.startHeight + deltaY));
+        newHeight = Math.max(
+          state.minHeight,
+          Math.min(state.maxHeight, state.startHeight + deltaY),
+        );
       }
       if (state.handle.includes('n')) {
-        newHeight = Math.max(state.minHeight, Math.min(state.maxHeight, state.startHeight - deltaY));
+        newHeight = Math.max(
+          state.minHeight,
+          Math.min(state.maxHeight, state.startHeight - deltaY),
+        );
         if (newHeight !== state.startHeight - deltaY) {
           newTop = state.startTop;
         } else {

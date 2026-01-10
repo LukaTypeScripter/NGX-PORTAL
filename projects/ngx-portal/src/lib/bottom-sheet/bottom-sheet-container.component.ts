@@ -7,9 +7,11 @@ import { Component } from '@angular/core';
     <!-- Drag handle -->
     <!-- Content portal outlet -->
   `,
-  styles: [`
-    /* Container styles */
-  `]
+  styles: [
+    `
+      /* Container styles */
+    `,
+  ],
 })
 export class BottomSheetContainerComponent {
   // Wrapper component for bottom sheet content

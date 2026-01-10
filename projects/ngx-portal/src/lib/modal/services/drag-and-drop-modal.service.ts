@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { ModalRef } from "../modal-ref";
-import { OverlayRef } from "@angular/cdk/overlay";
+import { Injectable } from '@angular/core';
+import { ModalRef } from '../modal-ref';
+import { OverlayRef } from '@angular/cdk/overlay';
 
 interface DragState {
   isDragging: boolean;
@@ -18,7 +18,6 @@ interface DragState {
 })
 export class DragAndDropModalService {
   private dragStates = new WeakMap<ModalRef<any, any>, DragState>();
-
 
   createDragAndDropModal<T = unknown, R = unknown>(modalRef: ModalRef<T, R>): void {
     const overlayRef = modalRef.overlayRef;
@@ -44,7 +43,13 @@ export class DragAndDropModalService {
 
       overlayElement.classList.add('is-dragging');
 
-      console.log('dragging started', state.startX, state.startY, state.initialLeft, state.initialTop);
+      console.log(
+        'dragging started',
+        state.startX,
+        state.startY,
+        state.initialLeft,
+        state.initialTop,
+      );
     };
 
     const mousemoveHandler = (event: MouseEvent) => {
@@ -89,8 +94,6 @@ export class DragAndDropModalService {
     document.addEventListener('mousemove', mousemoveHandler);
     document.addEventListener('mouseup', mouseupHandler);
   }
-
-
 
   destroyDragAndDropModal<T = unknown, R = unknown>(modal: ModalRef<T, R>): void {
     const dragState = this.dragStates.get(modal);

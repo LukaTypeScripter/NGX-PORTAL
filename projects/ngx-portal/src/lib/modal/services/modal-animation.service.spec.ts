@@ -10,7 +10,7 @@ describe('ModalAnimationService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ModalAnimationService]
+      providers: [ModalAnimationService],
     });
     service = TestBed.inject(ModalAnimationService);
   });
@@ -18,7 +18,7 @@ describe('ModalAnimationService', () => {
   function createMockOverlayRef(): OverlayRef {
     return {
       overlayElement: document.createElement('div'),
-      backdropElement: document.createElement('div')
+      backdropElement: document.createElement('div'),
     } as unknown as OverlayRef;
   }
 
@@ -58,8 +58,12 @@ describe('ModalAnimationService', () => {
 
       service.applyOpeningAnimation(overlayRef, modalRef);
 
-      expect(overlayRef.overlayElement.style.getPropertyValue('--modal-animation-duration')).toBe('500ms');
-      expect(overlayRef.backdropElement!.style.getPropertyValue('--modal-animation-duration')).toBe('500ms');
+      expect(overlayRef.overlayElement.style.getPropertyValue('--modal-animation-duration')).toBe(
+        '500ms',
+      );
+      expect(overlayRef.backdropElement!.style.getPropertyValue('--modal-animation-duration')).toBe(
+        '500ms',
+      );
     });
 
     it('should transition to opened state after duration', () => {
@@ -133,7 +137,7 @@ describe('ModalAnimationService', () => {
     it('should handle missing backdrop element', () => {
       const overlayRef = {
         overlayElement: document.createElement('div'),
-        backdropElement: null
+        backdropElement: null,
       } as unknown as OverlayRef;
       const modalRef = createModalRefMock();
       modalRef.animationEnabled = true;
@@ -192,8 +196,12 @@ describe('ModalAnimationService', () => {
 
       service.applyClosingAnimation(overlayRef, true, 500, onComplete);
 
-      expect(overlayRef.overlayElement.style.getPropertyValue('--modal-animation-duration')).toBe('500ms');
-      expect(overlayRef.backdropElement!.style.getPropertyValue('--modal-animation-duration')).toBe('500ms');
+      expect(overlayRef.overlayElement.style.getPropertyValue('--modal-animation-duration')).toBe(
+        '500ms',
+      );
+      expect(overlayRef.backdropElement!.style.getPropertyValue('--modal-animation-duration')).toBe(
+        '500ms',
+      );
     });
 
     it('should call onComplete after animation duration', () => {
@@ -215,7 +223,7 @@ describe('ModalAnimationService', () => {
     it('should handle missing backdrop element', () => {
       const overlayRef = {
         overlayElement: document.createElement('div'),
-        backdropElement: null
+        backdropElement: null,
       } as unknown as OverlayRef;
       const onComplete = vi.fn();
 

@@ -16,7 +16,7 @@ export class ModalAnimationService {
    */
   applyOpeningAnimation<T = unknown, R = unknown>(
     overlayRef: OverlayRef,
-    modalRef: ModalRef<T, R>
+    modalRef: ModalRef<T, R>,
   ): void {
     if (!modalRef.animationEnabled) {
       return;
@@ -43,7 +43,7 @@ export class ModalAnimationService {
     overlayRef: OverlayRef,
     animationEnabled: boolean,
     animationDuration: number,
-    onComplete: () => void
+    onComplete: () => void,
   ): void {
     if (!animationEnabled) {
       onComplete();

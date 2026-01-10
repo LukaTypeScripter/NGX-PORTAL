@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { SnapPoint } from '../bottom-sheet-config';
 
 interface ParsedSnapPoint {
-  value: number; // in pixels
+  value: number; 
   index: number;
   originalValue: SnapPoint;
 }
@@ -20,14 +20,16 @@ export class BottomSheetSnapService {
    * Supports: percentages (0.5, "50%"), pixels ("500px"), vh units ("50vh")
    */
   parseSnapPoints(snapPoints: SnapPoint[], containerHeight: number): ParsedSnapPoint[] {
-    return snapPoints.map((point, index) => {
-      const pixelValue = this.convertToPixels(point, containerHeight);
-      return {
-        value: pixelValue,
-        index,
-        originalValue: point,
-      };
-    }).sort((a, b) => a.value - b.value); 
+    return snapPoints
+      .map((point, index) => {
+        const pixelValue = this.convertToPixels(point, containerHeight);
+        return {
+          value: pixelValue,
+          index,
+          originalValue: point,
+        };
+      })
+      .sort((a, b) => a.value - b.value);
   }
 
   /**
@@ -66,18 +68,18 @@ export class BottomSheetSnapService {
   }
 
   /**
-   * Determines the target snap point based on current position and velocity
-   * @param currentPosition - Current Y position of the sheet (in pixels from top)
+   * Determines the target snap point based on current visible height and velocity
+   * @param currentVisibleHeight - Current visible height from bottom (in pixels)
    * @param velocity - Velocity in pixels per millisecond (positive = down, negative = up)
-   * @param snapPoints - Parsed snap points
+   * @param snapPoints - Parsed snap points (values represent visible height from bottom)
    * @param velocityThreshold - Minimum velocity to trigger momentum snapping (default: 0.5)
    * @returns Target snap point or null if should dismiss
    */
   determineTargetSnapPoint(
-    currentPosition: number,
+    currentVisibleHeight: number,
     velocity: number,
     snapPoints: ParsedSnapPoint[],
-    velocityThreshold: number = 0.5
+    velocityThreshold: number = 0.5,
   ): ParsedSnapPoint | null {
     if (snapPoints.length === 0) {
       return null;
@@ -87,13 +89,13 @@ export class BottomSheetSnapService {
 
     if (absVelocity >= velocityThreshold) {
       if (velocity > 0) {
-        return this.getNextLowerSnapPoint(currentPosition, snapPoints);
+        return this.getNextLowerSnapPoint(currentVisibleHeight, snapPoints);
       } else {
-        return this.getNextHigherSnapPoint(currentPosition, snapPoints);
+        return this.getNextHigherSnapPoint(currentVisibleHeight, snapPoints);
       }
     }
 
-    return this.getNearestSnapPoint(currentPosition, snapPoints);
+    return this.getNearestSnapPoint(currentVisibleHeight, snapPoints);
   }
 
   /**
@@ -101,7 +103,7 @@ export class BottomSheetSnapService {
    */
   private getNearestSnapPoint(
     currentPosition: number,
-    snapPoints: ParsedSnapPoint[]
+    snapPoints: ParsedSnapPoint[],
   ): ParsedSnapPoint {
     let nearest = snapPoints[0];
     let minDistance = Math.abs(currentPosition - snapPoints[0].value);
@@ -119,35 +121,37 @@ export class BottomSheetSnapService {
 
   /**
    * Gets the next lower snap point (for downward swipe)
+   * "Lower" means less visible height (smaller value)
    * Returns null if no lower point exists (should dismiss)
    */
   private getNextLowerSnapPoint(
-    currentPosition: number,
-    snapPoints: ParsedSnapPoint[]
+    currentVisibleHeight: number,
+    snapPoints: ParsedSnapPoint[],
   ): ParsedSnapPoint | null {
-    const lowerPoints = snapPoints.filter((point) => point.value > currentPosition);
+    const lowerPoints = snapPoints.filter((point) => point.value < currentVisibleHeight);
 
     if (lowerPoints.length === 0) {
       return null;
     }
 
-    return lowerPoints[0];
+    return lowerPoints[lowerPoints.length - 1];
   }
 
   /**
    * Gets the next higher snap point (for upward swipe)
+   * "Higher" means more visible height (larger value)
    */
   private getNextHigherSnapPoint(
-    currentPosition: number,
-    snapPoints: ParsedSnapPoint[]
+    currentVisibleHeight: number,
+    snapPoints: ParsedSnapPoint[],
   ): ParsedSnapPoint {
-    const higherPoints = snapPoints.filter((point) => point.value < currentPosition);
+    const higherPoints = snapPoints.filter((point) => point.value > currentVisibleHeight);
 
     if (higherPoints.length === 0) {
-      return snapPoints[0];
+      return snapPoints[snapPoints.length - 1];
     }
 
-    return higherPoints[higherPoints.length - 1];
+    return higherPoints[0];
   }
 
   /**
@@ -159,7 +163,7 @@ export class BottomSheetSnapService {
   shouldDismiss(
     currentPosition: number,
     containerHeight: number,
-    dismissThreshold: number = 0.3
+    dismissThreshold: number = 0.3,
   ): boolean {
     const draggedDistance = currentPosition;
     const threshold = containerHeight * dismissThreshold;
@@ -173,24 +177,20 @@ export class BottomSheetSnapService {
    */
   getInitialSnapPoint(
     snapPoints: ParsedSnapPoint[],
-    initialSnapIndex: number = 0
+    initialSnapIndex: number = 0,
   ): ParsedSnapPoint {
     const index = Math.max(0, Math.min(initialSnapIndex, snapPoints.length - 1));
     return snapPoints[index];
   }
 
   /**
-   * Calculates the position of the sheet based on snap point
-   * Returns negative translateY value to pull bottom sheet up into view
+   * Calculates the translateY value to position the sheet at a snap point
    * @param snapPoint - The target snap point
    * @param containerHeight - Viewport height
+   * @param sheetHeight - Actual height of the bottom sheet element
    */
-  calculateSheetPosition(snapPoint: ParsedSnapPoint, containerHeight: number): number {
-    // For bottom-positioned sheets, negative values pull the sheet UP
-    // snapPoint.value is the desired height from bottom (e.g., 50% = 500px on 1000px viewport)
-    // We need to translate UP by (containerHeight - snapPoint.value)
-    console.log(containerHeight,"containerHeight",snapPoint.value,"snapPoint.value")
-    return containerHeight - snapPoint.value;
+  calculateSheetPosition(snapPoint: ParsedSnapPoint, sheetHeight: number): number {
+    return Math.max(0, sheetHeight - snapPoint.value);
   }
 
   /**

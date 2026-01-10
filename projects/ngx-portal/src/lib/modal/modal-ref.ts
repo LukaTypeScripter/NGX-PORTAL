@@ -6,13 +6,13 @@ import { catchError } from 'rxjs/operators';
 import { PortalRefBase } from '../shared/portal-ref-base';
 
 export class ModalRef<T = unknown, R = unknown> extends PortalRefBase {
-    readonly overlayRef: OverlayRef;
-    componentInstance?: T;
-    animationEnabled = true;
-    animationDuration = 300;
-    openingTimeoutId?: ReturnType<typeof setTimeout>;
-    readonly id: string;
-    level: number = 0;
+  readonly overlayRef: OverlayRef;
+  componentInstance?: T;
+  animationEnabled = true;
+  animationDuration = 300;
+  openingTimeoutId?: ReturnType<typeof setTimeout>;
+  readonly id: string;
+  level: number = 0;
 
   private _afterClosed = new Subject<CloseResult<R>>();
   private _isClosing = false;
@@ -52,15 +52,11 @@ export class ModalRef<T = unknown, R = unknown> extends PortalRefBase {
       }
 
       if (result instanceof Promise) {
-        return from(result).pipe(
-          catchError(() => of(false))
-        );
+        return from(result).pipe(catchError(() => of(false)));
       }
 
       if (isObservable(result)) {
-        return result.pipe(
-          catchError(() => of(false))
-        );
+        return result.pipe(catchError(() => of(false)));
       }
 
       return of(false);
@@ -78,7 +74,7 @@ export class ModalRef<T = unknown, R = unknown> extends PortalRefBase {
       return;
     }
 
-    this.canClose().subscribe(canClose => {
+    this.canClose().subscribe((canClose) => {
       if (!canClose) {
         return;
       }
@@ -98,7 +94,7 @@ export class ModalRef<T = unknown, R = unknown> extends PortalRefBase {
           this.overlayRef.dispose();
           this._afterClosed.next({ reason, data: result });
           this._afterClosed.complete();
-        }
+        },
       );
     });
   }
@@ -126,12 +122,11 @@ export class ModalRef<T = unknown, R = unknown> extends PortalRefBase {
         this.overlayRef.dispose();
         this._afterClosed.next({ reason, data: result });
         this._afterClosed.complete();
-      }
+      },
     );
   }
 
   afterClosed(): Observable<CloseResult<R>> {
     return this._afterClosed.asObservable();
   }
-
 }

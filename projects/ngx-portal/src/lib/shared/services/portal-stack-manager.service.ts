@@ -82,7 +82,7 @@ export class PortalStackManager<T extends PortalRefBase = PortalRefBase> {
    */
   closeAll(): void {
     const refsToClose = [...this._stack].reverse();
-    refsToClose.forEach(ref => ref.close());
+    refsToClose.forEach((ref) => ref.close());
   }
 
   /**

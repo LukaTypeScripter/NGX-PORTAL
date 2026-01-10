@@ -12,7 +12,7 @@ describe('ModalRef - beforeClose guards', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ModalAnimationService]
+      providers: [ModalAnimationService],
     });
 
     animationService = TestBed.inject(ModalAnimationService);
@@ -20,7 +20,7 @@ describe('ModalRef - beforeClose guards', () => {
     overlayRef = {
       overlayElement: document.createElement('div'),
       backdropElement: document.createElement('div'),
-      dispose: vi.fn()
+      dispose: vi.fn(),
     } as unknown as OverlayRef;
 
     modalRef = new ModalRef(overlayRef, 'test-modal', animationService);
@@ -211,7 +211,7 @@ describe('ModalRef - beforeClose guards', () => {
 
       modalRef.setBeforeCloseGuard(() => {
         if (!formDirty) return true;
-        return userConfirms; 
+        return userConfirms;
       });
 
       const result = await firstValueFrom(modalRef.canClose());

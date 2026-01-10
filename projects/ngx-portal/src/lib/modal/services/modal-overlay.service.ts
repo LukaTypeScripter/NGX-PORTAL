@@ -28,7 +28,7 @@ export class ModalOverlayService {
       {
         width: config?.width ?? '500px',
         height: config?.height,
-      }
+      },
     );
   }
 }

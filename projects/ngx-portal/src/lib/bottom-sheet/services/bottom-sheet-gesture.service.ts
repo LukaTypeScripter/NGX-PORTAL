@@ -39,7 +39,7 @@ export class BottomSheetGestureService {
     dragHandle: HTMLElement,
     onDragStart?: () => void,
     onDragMove?: (deltaY: number, currentY: number) => void,
-    onDragEnd?: (velocity: number, deltaY: number) => void
+    onDragEnd?: (velocity: number, deltaY: number) => void,
   ): void {
     const overlayElement = bottomSheetRef.overlayRef.overlayElement;
 
@@ -164,7 +164,7 @@ export class BottomSheetGestureService {
    */
   disableGestures<T = unknown, R = unknown>(
     bottomSheetRef: BottomSheetRef<T, R>,
-    dragHandle: HTMLElement
+    dragHandle: HTMLElement,
   ): void {
     const state = this.gestureStates.get(bottomSheetRef);
     if (!state) return;
@@ -191,7 +191,7 @@ export class BottomSheetGestureService {
 
     const now = positionHistory[positionHistory.length - 1].timestamp;
     const recentPositions = positionHistory.filter(
-      (pos) => now - pos.timestamp <= this.VELOCITY_CALCULATION_WINDOW
+      (pos) => now - pos.timestamp <= this.VELOCITY_CALCULATION_WINDOW,
     );
 
     if (recentPositions.length < 2) {
@@ -212,7 +212,7 @@ export class BottomSheetGestureService {
   }
 
   /**
-    * Checks if the sheet is currently being dragged
+   * Checks if the sheet is currently being dragged
    */
   isDragging<T = unknown, R = unknown>(bottomSheetRef: BottomSheetRef<T, R>): boolean {
     const state = this.gestureStates.get(bottomSheetRef);
@@ -227,7 +227,7 @@ export class BottomSheetGestureService {
    */
   isSwipe(
     velocity: number,
-    threshold: number = 0.5
+    threshold: number = 0.5,
   ): { isSwipe: boolean; direction: 'up' | 'down' | null } {
     const absVelocity = Math.abs(velocity);
 
