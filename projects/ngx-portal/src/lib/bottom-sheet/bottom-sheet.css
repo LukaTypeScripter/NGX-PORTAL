@@ -1,5 +1,3 @@
-/* Bottom sheet styles */
-
 .bottom-sheet-container {
   position: fixed !important;
   bottom: 0 !important;
@@ -32,7 +30,6 @@
   cursor: grabbing;
 }
 
-/* Backdrop */
 .bottom-sheet-backdrop {
   position: fixed;
   top: 0;
@@ -43,7 +40,6 @@
   z-index: 999;
 }
 
-/* Opening animations */
 .bottom-sheet-opening {
   animation: slideUp var(--bottom-sheet-animation-duration, 300ms) ease-out;
 }
@@ -60,7 +56,6 @@
   opacity: 1;
 }
 
-/* Closing animations */
 .bottom-sheet-closing {
   animation: slideDown var(--bottom-sheet-animation-duration, 300ms) ease-in forwards;
 }
@@ -78,19 +73,16 @@
   opacity: 0;
 }
 
-/* Snap transition */
 .bottom-sheet-snapping {
   transition: transform var(--bottom-sheet-animation-duration, 300ms)
     cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Touch optimizations */
 .bottom-sheet-dragging {
   transition: none !important;
   user-select: none !important;
 }
 
-/* Keyframe animations */
 @keyframes slideUp {
   from {
     transform: translateY(100%);

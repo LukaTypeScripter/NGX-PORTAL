@@ -13,8 +13,4 @@ describe('BottomSheet', () => {
     expect(service).toBeTruthy();
   });
 
-  // Test: open bottom sheet
-  // Test: dismiss bottom sheet
-  // Test: multiple bottom sheets
-  // Test: backdrop interaction
 });

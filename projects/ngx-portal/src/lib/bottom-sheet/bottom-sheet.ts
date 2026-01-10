@@ -10,7 +10,6 @@ import { BottomSheetSnapService } from './services/bottom-sheet-snap.service';
 import { PortalOverlayService } from '../shared/services/portal-overlay.service';
 import { PortalAccessibilityService } from '../shared/services/portal-accessibility.service';
 import { PortalStackManager } from '../shared/services/portal-stack-manager.service';
-import { BottomSheetContainerComponent } from './bottom-sheet-container.component';
 
 /**
  * Main service for opening and managing bottom sheets

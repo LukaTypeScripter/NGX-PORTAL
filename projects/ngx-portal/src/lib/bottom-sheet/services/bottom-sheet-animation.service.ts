@@ -80,13 +80,10 @@ export class BottomSheetAnimationService {
       'bottom-sheet-snapping',
     );
 
-    // Check if element has been dragged (has a transform applied)
     const currentTransform = window.getComputedStyle(overlayElement).transform;
     const hasDragTransform = currentTransform && currentTransform !== 'none';
 
     if (hasDragTransform) {
-      // If dragged, animate from current position to off-screen
-      // Don't use keyframe animation (which resets to translateY(0))
       overlayElement.classList.remove('bottom-sheet-dragging');
       overlayElement.style.transition = `transform ${duration}ms ease-in, opacity ${duration}ms ease-in`;
       overlayElement.style.transform = `translateY(100vh)`;
@@ -129,7 +126,6 @@ export class BottomSheetAnimationService {
       overlayElement.classList.add('bottom-sheet-snapping');
       this._setAnimationDuration(overlayRef, `${duration}ms`);
 
-      // Force reflow to ensure transition class is applied before transform changes
       void overlayElement.offsetHeight;
 
       overlayElement.style.transform = `translateY(${targetPosition}px)`;
