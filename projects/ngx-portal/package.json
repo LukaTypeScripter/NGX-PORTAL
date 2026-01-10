@@ -1,6 +1,6 @@
 {
   "name": "@lukaaaa/ngx-portal",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Angular library for modals and bottom sheets with drag-and-drop, resizable, and gesture support",
   "author": "luka lukashinjikashvili84@gmail.com",
   "license": "MIT",
