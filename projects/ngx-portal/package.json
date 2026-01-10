@@ -1,9 +1,31 @@
 {
   "name": "ngx-portal",
   "version": "0.0.1",
+  "description": "Angular library for modals and bottom sheets with drag-and-drop, resizable, and gesture support",
+  "author": "luka lukashinjikashvili84@gmail.com",
+  "license": "MIT",
+  "keywords": [
+    "angular",
+    "modal",
+    "bottom-sheet",
+    "dialog",
+    "overlay",
+    "drag-and-drop",
+    "resizable",
+    "gestures"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LukaTypeScripter/NGX-PORTAL"
+  },
+  "bugs": {
+    "url": "https://github.com/LukaTypeScripter/NGX-PORTAL/issues"
+  },
+  "homepage": "https://github.com/LukaTypeScripter/NGX-PORTAL/blob/main/README.md",
   "peerDependencies": {
     "@angular/common": "^21.0.0",
-    "@angular/core": "^21.0.0"
+    "@angular/core": "^21.0.0",
+    "@angular/cdk": "^21.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
