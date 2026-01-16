@@ -5,9 +5,11 @@ import {
   DragAndDropModalService,
   ModalResizeService,
   BottomSheet,
+  DropDown,
 } from '../../../ngx-portal/src/public-api';
 import { TestModalComponent } from './test-modal.component';
 import { BottomSheetTestComponent } from './bottom-sheet-test.component';
+import { DropdownTestComponent } from './dropdown-test.component';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +23,7 @@ export class App {
   private readonly dragService = inject(DragAndDropModalService);
   private readonly resizeService = inject(ModalResizeService);
   protected readonly bottomSheet = inject(BottomSheet);
+  protected readonly dropdown = inject(DropDown);
 
   openModal(): void {
     const modalRef = this.modal.open(TestModalComponent, {
@@ -270,5 +273,159 @@ export class App {
   dismissAllBottomSheets(): void {
     console.log(`Dismissing all ${this.bottomSheet.openBottomSheetsCount()} bottom sheets`);
     this.bottomSheet.dismissAll();
+  }
+
+  // Dropdown Examples
+
+  openBasicDropdown(event: MouseEvent): void {
+    const ref = this.dropdown.open(
+      DropdownTestComponent,
+      {
+        data: {
+          title: 'Basic Dropdown',
+          description: 'Click outside or press Escape to close',
+          timestamp: new Date(),
+          showInfo: true,
+        },
+        width: '250px',
+        animation: true,
+      },
+      event.target as HTMLElement,
+    );
+
+    ref.afterClosed().subscribe((result) => {
+      console.log('Dropdown closed:', result);
+    });
+  }
+
+  openDropdownWithoutBackdrop(event: MouseEvent): void {
+    const ref = this.dropdown.open(
+      DropdownTestComponent,
+      {
+        data: {
+          title: 'No Backdrop',
+          description: 'Dropdown without backdrop overlay',
+          timestamp: new Date(),
+        },
+        width: '280px',
+        hasBackdrop: false,
+      },
+      event.target as HTMLElement,
+    );
+
+    ref.afterClosed().subscribe((result) => {
+      console.log('No backdrop dropdown closed:', result);
+    });
+  }
+
+  openSlowAnimationDropdown(event: MouseEvent): void {
+    const ref = this.dropdown.open(
+      DropdownTestComponent,
+      {
+        data: {
+          title: 'Slow Animation',
+          description: 'Animation duration: 500ms',
+          timestamp: new Date(),
+          showInfo: true,
+        },
+        width: '260px',
+        animationDuration: 500,
+      },
+      event.target as HTMLElement,
+    );
+
+    ref.afterClosed().subscribe((result) => {
+      console.log('Slow animation dropdown closed:', result);
+    });
+  }
+
+  openFastAnimationDropdown(event: MouseEvent): void {
+    const ref = this.dropdown.open(
+      DropdownTestComponent,
+      {
+        data: {
+          title: 'Fast Animation',
+          description: 'Animation duration: 100ms',
+          timestamp: new Date(),
+        },
+        width: '260px',
+        animationDuration: 100,
+      },
+      event.target as HTMLElement,
+    );
+
+    ref.afterClosed().subscribe((result) => {
+      console.log('Fast animation dropdown closed:', result);
+    });
+  }
+
+  openNoAnimationDropdown(event: MouseEvent): void {
+    const ref = this.dropdown.open(
+      DropdownTestComponent,
+      {
+        data: {
+          title: 'No Animation',
+          description: 'Opens instantly without animation',
+          timestamp: new Date(),
+          showInfo: true,
+        },
+        width: '260px',
+        animation: false,
+      },
+      event.target as HTMLElement,
+    );
+
+    ref.afterClosed().subscribe((result) => {
+      console.log('No animation dropdown closed:', result);
+    });
+  }
+
+  openCustomOffsetDropdown(event: MouseEvent): void {
+    const ref = this.dropdown.open(
+      DropdownTestComponent,
+      {
+        data: {
+          title: 'Custom Offset',
+          description: 'xOffset: 50px, yOffset: 20px (No animation to prevent jump)',
+          timestamp: new Date(),
+          showInfo: true,
+        },
+        width: '280px',
+        xOffset: 50,
+        yOffset: -200,
+        animation: false, 
+      },
+      event.target as HTMLElement,
+    );
+
+    ref.afterClosed().subscribe((result) => {
+      console.log('Custom offset dropdown closed:', result);
+    });
+  }
+
+  openGlobalDropdown(): void {
+    const ref = this.dropdown.open(
+      DropdownTestComponent,
+      {
+        data: {
+          title: 'Global Dropdown',
+          description: 'Positioned globally (centered)',
+          timestamp: new Date(),
+          showInfo: true,
+          showFullData: true,
+        },
+        width: '300px',
+        hasBackdrop: true,
+      },
+    );
+
+    ref.afterClosed().subscribe((result) => {
+      console.log('Global dropdown closed:', result);
+    });
+  }
+
+  closeAllDropdowns(): void {
+    console.log(`Closing all ${this.dropdown.openDropDownsCount()} dropdowns`);
+    this.dropdown.closeAll();
   }
 }

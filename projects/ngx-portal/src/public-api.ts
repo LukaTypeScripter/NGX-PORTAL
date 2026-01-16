@@ -28,3 +28,8 @@ export * from './lib/shared/services/portal-stack-manager.service';
 export * from './lib/bottom-sheet/bottom-sheet';
 export * from './lib/bottom-sheet/bottom-sheet-ref';
 export * from './lib/bottom-sheet/bottom-sheet-config';
+
+// DropDown
+export * from './lib/drop-down/drop-down';
+export * from './lib/drop-down/drop-down-ref';
+export * from './lib/drop-down/drop-down-config';

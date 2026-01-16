@@ -491,6 +491,149 @@
         >
           Dismiss All ({{ bottomSheet.openBottomSheetsCount() }})
         </button>
+
+        <h3
+          style="
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+            color: var(--gray-900);
+          "
+        >
+          Dropdowns
+        </h3>
+
+        <button
+          (click)="openBasicDropdown($event)"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--bright-blue);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          Basic Dropdown
+        </button>
+
+        <button
+          (click)="openDropdownWithoutBackdrop($event)"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--electric-violet);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          No Backdrop
+        </button>
+
+        <button
+          (click)="openSlowAnimationDropdown($event)"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--french-violet);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          Slow Animation
+        </button>
+
+        <button
+          (click)="openFastAnimationDropdown($event)"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--vivid-pink);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          Fast Animation
+        </button>
+
+        <button
+          (click)="openNoAnimationDropdown($event)"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--hot-red);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          No Animation
+        </button>
+
+        <button
+          (click)="openCustomOffsetDropdown($event)"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: #ff6f00;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          Custom X/Y Offset
+        </button>
+
+        <button
+          (click)="openGlobalDropdown()"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--orange-red);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+          "
+        >
+          Global Dropdown
+        </button>
+
+        <button
+          (click)="closeAllDropdowns()"
+          [disabled]="dropdown.openDropDownsCount() === 0"
+          style="
+            padding: 0.75rem 1.5rem;
+            background: var(--hot-red);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            opacity: 0.9;
+          "
+          [style.opacity]="dropdown.openDropDownsCount() === 0 ? '0.4' : '0.9'"
+          [style.cursor]="dropdown.openDropDownsCount() === 0 ? 'not-allowed' : 'pointer'"
+        >
+          Close All ({{ dropdown.openDropDownsCount() }})
+        </button>
       </div>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>

@@ -1,0 +1,68 @@
+.dropdown-backdrop {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-backdrop-opening {
+  animation: fadeIn var(--dropdown-animation-duration, 200ms) ease-out;
+}
+
+.dropdown-backdrop-opened {
+  opacity: 1;
+}
+
+.dropdown-backdrop-closing {
+  animation: fadeOut var(--dropdown-animation-duration, 200ms) ease-in forwards;
+}
+
+.cdk-overlay-pane.dropdown-opening {
+  animation: dropdownFadeIn var(--dropdown-animation-duration, 200ms) ease-out;
+}
+
+.cdk-overlay-pane.dropdown-opened {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cdk-overlay-pane.dropdown-closing {
+  animation: dropdownFadeOut var(--dropdown-animation-duration, 200ms) ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dropdownFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}

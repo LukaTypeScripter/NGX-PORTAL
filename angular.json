@@ -54,7 +54,8 @@
             "styles": [
               "projects/demo/src/styles.css",
               "projects/ngx-portal/src/lib/modal/modal.css",
-              "projects/ngx-portal/src/lib/bottom-sheet/bottom-sheet.css"
+              "projects/ngx-portal/src/lib/bottom-sheet/bottom-sheet.css",
+              "projects/ngx-portal/src/lib/drop-down/drop-down.css"
             ],
             "server": "projects/demo/src/main.server.ts",
             "outputMode": "server",
